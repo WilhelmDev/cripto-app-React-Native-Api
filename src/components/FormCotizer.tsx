@@ -1,13 +1,13 @@
 import { View, Text, StyleSheet } from 'react-native'
 import {Picker} from '@react-native-picker/picker';
 import { useState, useEffect } from 'react';
-import { CoinsValues } from '../../interfaces';
+import { ApiData, AssetsState, CoinsValues } from '../../interfaces';
 import axios from 'axios';
 
 export default function FormCotizer() {
     const [coin, setCoin] = useState<CoinsValues>('')
     const [cryptoCoin, setCryptoCoin] = useState('')
-    const [cryptoAssets, setCryptoAssets] = useState([])
+    const [cryptoAssets, setCryptoAssets] = useState<AssetsState>([])
 
     useEffect(() => {
         const apiRequest = async() => {
@@ -22,6 +22,10 @@ export default function FormCotizer() {
         console.log(item)
         setCoin(item)
     }
+    const handleCryptoCoin = (value:string) => {
+        setCryptoCoin(value)
+        console.log(value)
+    }
     return (
         <View>
             <Text style={styles.label}>Moneda</Text>
@@ -34,6 +38,15 @@ export default function FormCotizer() {
                     <Picker.Item label='Peso Mexicano' value='MXN'/>
                 </Picker>
             <Text style={styles.label}>Criptomoneda</Text>
+                <Picker
+                selectedValue={cryptoCoin}
+                onValueChange={(itemValue) => handleCryptoCoin(itemValue)}>
+                    <Picker.Item label='Seleccione' value=''/>
+                    {cryptoAssets.map( coinItem => (
+                        <Picker.Item key={coinItem.CoinInfo.Id} label={coinItem.CoinInfo.FullName} value={coinItem.CoinInfo.Name}/>
+                    ))}
+
+                </Picker>
         </View>
     )
 }
