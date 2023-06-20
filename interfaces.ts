@@ -6,6 +6,10 @@ export type QuoteHandler = (coin:CoinsValues, crypto:string) => void
 
 export type ResponseData ={
     PRICE?:string
+    HIGHDAY?:string
+    LOWDAY?:string
+    CHANGEPCT24HOUR?:string
+    LASTUPDATE?:string
 }
 
 export type ReqDataState = {

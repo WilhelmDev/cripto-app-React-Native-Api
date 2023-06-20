@@ -1,11 +1,11 @@
 import {useState, useEffect} from 'react'
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image,} from 'react-native';
-import Header from './src/components/Header';
-import FormCotizer from './src/components/FormCotizer';
+import { StyleSheet, Text, View, Image, ScrollView} from 'react-native';
 import { useFonts } from 'expo-font';
 import { QuoteHandler, ReqDataState, ResponseData } from './interfaces';
 import axios from 'axios';
+import Header from './src/components/Header';
+import FormCotizer from './src/components/FormCotizer';
 import Quotation from './src/components/Quotation';
 
 export default function App() {
@@ -40,13 +40,12 @@ export default function App() {
 
     
     const handleQuotation:QuoteHandler = (coin, crypto) => {
-        console.log(coin, crypto)
         setReqdata({coin, crypto})
         setReqApi(true)
     }
 
     return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
         <StatusBar style='auto'/>
         
         <Header />
@@ -57,11 +56,11 @@ export default function App() {
         <View style={styles.content}>
             <FormCotizer handleQuotation={handleQuotation}/>
 
-            <Quotation response={response}/>
-
         </View>
 
-    </View>
+        <Quotation response={response}/>
+
+    </ScrollView>
     );
 }
 
