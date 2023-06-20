@@ -38,6 +38,7 @@ export default function FormCotizer({handleQuotation}:FormProps) {
 
         //? Send Data to app
         handleQuotation(coin,cryptoCoin)
+        return
     }
 
     return (

@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react'
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, ScrollView} from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, ActivityIndicator} from 'react-native';
 import { useFonts } from 'expo-font';
 import { QuoteHandler, ReqDataState, ResponseData } from './interfaces';
 import axios from 'axios';
@@ -13,21 +13,33 @@ export default function App() {
     const [reqApi, setReqApi] = useState(false)
     const [reqData, setReqdata] = useState<ReqDataState>({})
     const [response, setResponse] = useState<ResponseData>({})
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => { //* req api for quotation
         const quotePrice = async() => {
             if(reqApi) {
+                setLoading(true)
+                setResponse({})
                 const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${reqData.crypto}&tsyms=${reqData.coin}`
                 const { data } = await axios(url)
-                
-                setResponse(data.DISPLAY[reqData.crypto!][reqData.coin!])
-                setReqApi(false)
 
+                setTimeout(() => {
+                    setResponse(data.DISPLAY[reqData.crypto!][reqData.coin!])
+                    setReqApi(false)
+                    setLoading(false)
+                }, 3000);
+
+                return
             }
             return
         }
         quotePrice()
     },[reqApi])
+
+    const handleQuotation:QuoteHandler = (coin, crypto) => {
+        setReqApi(true)
+        setReqdata({coin, crypto})
+    }
 
     const [fontsLoaded] = useFonts({
         'Lato-Black': require('./assets/fonts/Lato-Black.ttf'),
@@ -35,13 +47,7 @@ export default function App() {
     });
 
     if (!fontsLoaded) {//* Waiting for fonts 
-        return <Text>Loading</Text>
-    }
-
-    
-    const handleQuotation:QuoteHandler = (coin, crypto) => {
-        setReqdata({coin, crypto})
-        setReqApi(true)
+        return <ActivityIndicator size={'large'} color={'#5e49e2'} style={{marginTop:40}} />
     }
 
     return (
@@ -58,7 +64,9 @@ export default function App() {
 
         </View>
 
-        <Quotation response={response}/>
+        {loading 
+        ? <ActivityIndicator size={'large'} color={'#5e49e2'} style={{marginTop:40}}/>
+        : <Quotation response={response}/>}
 
     </ScrollView>
     );
