@@ -1,15 +1,15 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, Alert } from 'react-native'
 import {Picker} from '@react-native-picker/picker';
 import { useState, useEffect } from 'react';
-import { ApiData, AssetsState, CoinsValues } from '../../interfaces';
+import { ApiData, AssetsState, CoinsValues, FormProps } from '../../interfaces';
 import axios from 'axios';
 
-export default function FormCotizer() {
+export default function FormCotizer({handleQuotation}:FormProps) {
     const [coin, setCoin] = useState<CoinsValues>('')
     const [cryptoCoin, setCryptoCoin] = useState('')
     const [cryptoAssets, setCryptoAssets] = useState<AssetsState>([])
 
-    useEffect(() => {
+    useEffect(() => { //? Req to Api for assets
         const apiRequest = async() => {
             const url = 'https://min-api.cryptocompare.com/data/top/mktcapfull?limit=10&tsym=USD'
             const {data} = await axios(url)
@@ -19,13 +19,27 @@ export default function FormCotizer() {
     },[])
 
     const handleCoin = (item:CoinsValues) => {
-        console.log(item)
         setCoin(item)
     }
+
     const handleCryptoCoin = (value:string) => {
         setCryptoCoin(value)
-        console.log(value)
     }
+
+    const quotePrice = () => {
+        
+        if ([coin, cryptoCoin].includes('')) { //validation
+            Alert.alert(
+                'Error',
+                'Ambos campos son obligatorios'
+            )
+            return
+        }
+
+        //? Send Data to app
+        handleQuotation(coin,cryptoCoin)
+    }
+
     return (
         <View>
             <Text style={styles.label}>Moneda</Text>
@@ -37,6 +51,7 @@ export default function FormCotizer() {
                     <Picker.Item label='Euro' value='EUR'/>
                     <Picker.Item label='Peso Mexicano' value='MXN'/>
                 </Picker>
+
             <Text style={styles.label}>Criptomoneda</Text>
                 <Picker
                 selectedValue={cryptoCoin}
@@ -47,6 +62,12 @@ export default function FormCotizer() {
                     ))}
 
                 </Picker>
+
+            <TouchableHighlight style={styles.btnCot}
+            onPress={() => quotePrice()}>
+                <Text style={styles.btnTextCot}
+                >Cotizar</Text>
+            </TouchableHighlight>
         </View>
     )
 }
@@ -57,5 +78,19 @@ const styles = StyleSheet.create({
         textTransform:'uppercase',
         fontSize:22,
         marginVertical:20
+    },
+    btnCot:{
+        backgroundColor:'#5e49e2',
+        paddingHorizontal:10,
+        paddingVertical:12,
+        marginTop:20,
+        borderRadius:10
+    },
+    btnTextCot:{
+        color:'white',
+        fontSize:18,
+        fontFamily:'Lato-Black',
+        textTransform:'uppercase',
+        textAlign:'center',
     }
 })

@@ -1,48 +1,80 @@
+import {useState, useEffect} from 'react'
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image,} from 'react-native';
 import Header from './src/components/Header';
 import FormCotizer from './src/components/FormCotizer';
 import { useFonts } from 'expo-font';
-
+import { QuoteHandler, ReqDataState, ResponseData } from './interfaces';
+import axios from 'axios';
+import Quotation from './src/components/Quotation';
 
 export default function App() {
 
-  const [fontsLoaded] = useFonts({
-    'Lato-Black': require('./assets/fonts/Lato-Black.ttf'),
-    'Lato-Regular': require('./assets/fonts/Lato-Regular.ttf'),
-  });
+    const [reqApi, setReqApi] = useState(false)
+    const [reqData, setReqdata] = useState<ReqDataState>({})
+    const [response, setResponse] = useState<ResponseData>({})
 
-  if (!fontsLoaded) {//* Waiting for fonts 
-      return <Text>Loading</Text>
-  }
+    useEffect(() => { //* req api for quotation
+        const quotePrice = async() => {
+            if(reqApi) {
+                const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${reqData.crypto}&tsyms=${reqData.coin}`
+                const { data } = await axios(url)
+                
+                setResponse(data.DISPLAY[reqData.crypto!][reqData.coin!])
+                setReqApi(false)
 
-  return (
+            }
+            return
+        }
+        quotePrice()
+    },[reqApi])
+
+    const [fontsLoaded] = useFonts({
+        'Lato-Black': require('./assets/fonts/Lato-Black.ttf'),
+        'Lato-Regular': require('./assets/fonts/Lato-Regular.ttf'),
+    });
+
+    if (!fontsLoaded) {//* Waiting for fonts 
+        return <Text>Loading</Text>
+    }
+
+    
+    const handleQuotation:QuoteHandler = (coin, crypto) => {
+        console.log(coin, crypto)
+        setReqdata({coin, crypto})
+        setReqApi(true)
+    }
+
+    return (
     <View style={styles.container}>
-      <StatusBar style='auto'/>
-      
-      <Header />
+        <StatusBar style='auto'/>
+        
+        <Header />
 
-      <Image style={styles.img}
-      source={require('./assets/img/cryptomonedas.png')} />
+        <Image style={styles.img}
+        source={require('./assets/img/cryptomonedas.png')} />
 
-      <View style={styles.content}>
-        <FormCotizer />
-      </View>
+        <View style={styles.content}>
+            <FormCotizer handleQuotation={handleQuotation}/>
+
+            <Quotation response={response}/>
+
+        </View>
 
     </View>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
+    container: {
     flex: 1,
-  },
-  img:{
+    },
+    img:{
     width:'100%',
     height:150,
     marginHorizontal:0
-  },
-  content:{
+    },
+    content:{
     marginHorizontal:20
-  }
+    }
 });
